@@ -21,9 +21,11 @@ export const iniciarSesion = async (datos: DatosLogin): Promise<{ ok: boolean, t
             }
         }
 
+        console.error(data.detail.error)
+
         return {
             ok: false,
-            message: data.error || "Error al iniciar sesión",
+            message: "Hubo un error en el servidor, intenta más tarde.",
         };
 
     } catch (error) {

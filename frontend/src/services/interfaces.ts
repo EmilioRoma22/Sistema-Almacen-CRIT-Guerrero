@@ -1,11 +1,11 @@
 export interface TokenPayload {
     exp: number;
     id_departamento: string | number;
+    nombre_departamento: string
     id_usuario: number
 }
 
 export interface DatosLogin {
-    id_departamento: number;
     correo_usuario: string;
-    contraseña_usuario: string;
+    password_usuario: string;
 };

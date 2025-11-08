@@ -11,18 +11,16 @@ import { useAvisos } from '../hooks/useAvisos';
 
 const Login = () => {
     const [FormDatos, setFormDatos] = useState({
-        id_departamento: 0,
         correo_usuario: "",
-        contraseña_usuario: ""
+        password_usuario: ""
     });
     const [errores, setErrores] = useState({
-        id_departamento: "",
         correo_usuario: "",
-        contraseña_usuario: ""
+        password_usuario: ""
     });
     const inputRef = {
         correo_usuario: useRef<HTMLInputElement>(null),
-        contraseña_usuario: useRef<HTMLInputElement>(null),
+        password_usuario: useRef<HTMLInputElement>(null),
     };
     const [loading, setLoading] = useState(false);
     const [mostrarContraseña, setMostrarContraseña] = useState(false);
@@ -68,14 +66,12 @@ const Login = () => {
         setLoading(true);
 
         const nuevosErrores = {
-            id_departamento: "",
             correo_usuario: "",
-            contraseña_usuario: ""
+            password_usuario: ""
         };
 
-        if (FormDatos.id_departamento === 0) nuevosErrores.id_departamento = "Debe seleccionar un departamento";
         if (FormDatos.correo_usuario === "") nuevosErrores.correo_usuario = "Debe ingresar su correo";
-        if (FormDatos.contraseña_usuario === "") nuevosErrores.contraseña_usuario = "Debe ingresar su contraseña";
+        if (FormDatos.password_usuario === "") nuevosErrores.password_usuario = "Debe ingresar su contraseña";
         setErrores(nuevosErrores);
 
         const hayErrores = Object.values(nuevosErrores).some(error => error !== "");
@@ -88,14 +84,14 @@ const Login = () => {
             const resultado = await iniciarSesion(FormDatos);
 
             if (resultado.ok && resultado.token) {
-                localStorage.setItem("token", resultado.token);
-
+                //localStorage.setItem("token", resultado.token);
                 const decoded = jwtDecode<TokenPayload>(resultado.token);
 
                 if (decoded.id_departamento === 1) navigate("/usuarios");
                 else if (decoded.id_departamento === 2) navigate("/entradas");
                 else navigate("/resguardos");
             } else {
+                mostrarAviso(resultado.message || "Error", "error")
                 setErrores(prev => ({
                     ...prev,
                     contraseña_usuario: resultado.message || "Credenciales inválidas",
@@ -148,16 +144,16 @@ const Login = () => {
                             <label htmlFor="contraseña_usuario" className="block mb-2">Contraseña</label>
                             <div className="relative w-full">
                                 <input
-                                    ref={inputRef.contraseña_usuario}
+                                    ref={inputRef.password_usuario}
                                     type={mostrarContraseña ? "text" : "password"}
-                                    id="contraseña_usuario"
-                                    name="contraseña_usuario"
+                                    id="password_usuario"
+                                    name="password_usuario"
                                     onChange={handleInputChange}
-                                    value={FormDatos.contraseña_usuario}
+                                    value={FormDatos.password_usuario}
                                     className="w-full rounded-lg px-3 py-4 text-black bg-white pr-10 border focus:ring-1 focus:ring-yellow-300 focus:outline-none"
                                     placeholder="••••••••"
                                 />
-                                {FormDatos.contraseña_usuario.length > 0 && (
+                                {FormDatos.password_usuario.length > 0 && (
                                     <button
                                         type="button"
                                         onClick={() => { setMostrarContraseña(prev => !prev); }}
@@ -167,13 +163,13 @@ const Login = () => {
                                     </button>
                                 )}
                             </div>
-                            {errores.contraseña_usuario && (
+                            {errores.password_usuario && (
                                 <div
                                     key="contraseña_usuario_error"
                                     className="mb-4"
                                 >
                                     <p className="bg-red-500/30 text-white text-sm p-2 rounded-md text-center mt-3">
-                                        {errores.contraseña_usuario}
+                                        {errores.password_usuario}
                                     </p>
                                 </div>
                             )}
