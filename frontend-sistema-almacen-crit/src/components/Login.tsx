@@ -5,7 +5,6 @@ import { type TokenPayload } from '../services/interfaces';
 import { Loading } from './Loading';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
-import { AnimatePresence, motion } from 'motion/react';
 import { Eye, EyeClosed } from 'lucide-react';
 import AvisoToastStack from './AvisoToastStack';
 import { useAvisos } from '../hooks/useAvisos';
@@ -32,7 +31,7 @@ const Login = () => {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        
+
         if (!token) {
             return;
         }
@@ -111,12 +110,10 @@ const Login = () => {
 
     return (
         <>
-            <motion.div
-                initial={{ opacity: 0, y: 0 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
-                className="w-full h-screen flex flex-col md:flex-row overflow-auto"
-            >
+            <div className="w-full h-screen flex flex-col md:flex-row overflow-auto">
+                <div className="w-full md:w-1/2 h-full bg-white flex items-center justify-center p-6">
+                    <img src={logo_teleton} alt="Logo" className="w-2/3 md:w-1/2 h-auto" />
+                </div>
                 <div className="w-full md:w-1/2 h-full bg-[#502779] flex items-center justify-center p-6">
                     <form onSubmit={handleSubmit} className="w-full max-w-2xl text-white space-y-6">
                         <h1 className="text-5xl font-bold text-center md:text-left">
@@ -132,25 +129,19 @@ const Login = () => {
                                 name="correo_usuario"
                                 onChange={handleInputChange}
                                 value={FormDatos.correo_usuario}
-                                className="w-full rounded-lg px-3 py-4 text-black bg-white"
+                                className="w-full rounded-lg px-3 py-4 text-black bg-white border focus:ring-1 focus:ring-yellow-300 focus:outline-none"
                                 placeholder="Ingresa tu correo"
                             />
-                            <AnimatePresence mode='wait'>
-                                {errores.correo_usuario && (
-                                    <motion.div
-                                        key="correo_usuario_error"
-                                        initial={{ opacity: 0, y: -10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
-                                        transition={{ duration: 0.4, ease: "easeOut" }}
-                                        className="mb-4"
-                                    >
-                                        <p className="bg-red-500/30 text-white text-sm p-2 rounded-md text-center mt-3">
-                                            {errores.correo_usuario}
-                                        </p>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                            {errores.correo_usuario && (
+                                <div
+                                    key="correo_usuario_error"
+                                    className="mb-4"
+                                >
+                                    <p className="bg-red-500/30 text-white text-sm p-2 rounded-md text-center mt-3">
+                                        {errores.correo_usuario}
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
                         <div>
@@ -163,7 +154,7 @@ const Login = () => {
                                     name="contraseña_usuario"
                                     onChange={handleInputChange}
                                     value={FormDatos.contraseña_usuario}
-                                    className="w-full rounded-lg px-3 py-4 text-black bg-white pr-10"
+                                    className="w-full rounded-lg px-3 py-4 text-black bg-white pr-10 border focus:ring-1 focus:ring-yellow-300 focus:outline-none"
                                     placeholder="••••••••"
                                 />
                                 {FormDatos.contraseña_usuario.length > 0 && (
@@ -176,22 +167,16 @@ const Login = () => {
                                     </button>
                                 )}
                             </div>
-                            <AnimatePresence mode='wait'>
-                                {errores.contraseña_usuario && (
-                                    <motion.div
-                                        key="contraseña_usuario_error"
-                                        initial={{ opacity: 0, y: -10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
-                                        transition={{ duration: 0.4, ease: "easeOut" }}
-                                        className="mb-4"
-                                    >
-                                        <p className="bg-red-500/30 text-white text-sm p-2 rounded-md text-center mt-3">
-                                            {errores.contraseña_usuario}
-                                        </p>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                            {errores.contraseña_usuario && (
+                                <div
+                                    key="contraseña_usuario_error"
+                                    className="mb-4"
+                                >
+                                    <p className="bg-red-500/30 text-white text-sm p-2 rounded-md text-center mt-3">
+                                        {errores.contraseña_usuario}
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
                         <button
@@ -203,11 +188,7 @@ const Login = () => {
                         <p className='text-center text-white/60 mt-4'>®Sistema creado para la Fundación Teletón by Sandy Chavelas y Emilio Rodriguez</p>
                     </form>
                 </div>
-
-                <div className="w-full md:w-1/2 h-full bg-white flex items-center justify-center p-6">
-                    <img src={logo_teleton} alt="Logo" className="w-2/3 md:w-1/2 h-auto" />
-                </div>
-            </motion.div>
+            </div>
 
             <AvisoToastStack avisos={avisos} onClose={cerrarAviso} />
             {loading && (
