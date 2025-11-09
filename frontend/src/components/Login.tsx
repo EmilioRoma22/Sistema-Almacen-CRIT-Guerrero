@@ -92,10 +92,6 @@ const Login = () => {
                 else navigate("/resguardos");
             } else {
                 mostrarAviso(resultado.message || "Error", "error")
-                setErrores(prev => ({
-                    ...prev,
-                    contraseña_usuario: resultado.message || "Credenciales inválidas",
-                }));
                 setLoading(false);
             }
         } catch (error) {
