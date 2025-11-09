@@ -8,6 +8,7 @@ import { jwtDecode } from "jwt-decode";
 import { Eye, EyeClosed } from 'lucide-react';
 import AvisoToastStack from './AvisoToastStack';
 import { useAvisos } from '../hooks/useAvisos';
+import { pre } from 'motion/react-client';
 
 const Login = () => {
     const [FormDatos, setFormDatos] = useState({
@@ -91,7 +92,9 @@ const Login = () => {
                 else if (decoded.id_departamento === 2) navigate("/entradas");
                 else navigate("/resguardos");
             } else {
-                mostrarAviso(resultado.message || "Error", "error")
+                setErrores(prev => ({
+                    ...prev, password_usuario: resultado.message || "`"
+                }))
                 setLoading(false);
             }
         } catch (error) {
