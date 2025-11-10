@@ -19,4 +19,3 @@ class DatosActualizarUsuario(BaseModel):
     id_usuario: int
     new_password: str
     id_departamento: int
-    id_usuario: int

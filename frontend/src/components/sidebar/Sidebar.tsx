@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { Box, BoxesIcon, Building, ChartColumn, FileText, HandHelping, History, LogOut, Menu, RefreshCcwDotIcon, ShoppingBag, User, UsersRound } from "lucide-react";
 import { elementosPermitidos } from "../../utils/elementosPermitidos";
@@ -10,7 +10,7 @@ export const Sidebar = () => {
     const navigate = useNavigate()
     const esMobile = useIsMobile()
     const { usuario } = useAuth()
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
     const { cerrarSesionUsuario } = useAuth()
 
     const items = [
@@ -27,6 +27,11 @@ export const Sidebar = () => {
     ]
 
     const elementos = elementosPermitidos[Number(usuario?.id_departamento) as 1 | 2 | 3 | 4] || []
+
+    useEffect(() => {
+        if (esMobile) setOpen(false)
+        else setOpen(true)
+    }, [])
 
     return (
         <React.Fragment>

@@ -165,7 +165,7 @@ def actualizar_usuario(datos_usuario: DatosActualizarUsuario, usuario=Depends(ve
     try:
         connection = get_connection()
         cursor = connection.cursor()
-        
+                
         cursor.execute("""
             SELECT id_usuario FROM usuarios 
             WHERE correo_usuario = ? AND id_usuario != ?
@@ -178,7 +178,7 @@ def actualizar_usuario(datos_usuario: DatosActualizarUsuario, usuario=Depends(ve
                 detail={"error": "El correo ya está registrado por otro usuario."}
             )
 
-        if not datos_usuario.new_password:
+        if datos_usuario.new_password:
             sql = """
                 UPDATE usuarios
                 SET nombre_usuario = ?,
@@ -218,8 +218,14 @@ def actualizar_usuario(datos_usuario: DatosActualizarUsuario, usuario=Depends(ve
         if cursor.rowcount == 0:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail={"error": "No se ha podido editar el cliente, intente más tarde"}
+                detail={"error": "No se ha podido modificar el cliente, intente más tarde"}
             )
+
+        connection.commit()
+        
+        return {
+            "message": "El usuario se ha modificado correctamente"
+        }
     except HTTPException as err:
         raise err
     except Exception as err:
@@ -239,6 +245,8 @@ def eliminar_usuario(id_usuario: int, usuario=Depends(verify_access([1]))):
     try:
         connection = get_connection()
         cursor = connection.cursor()
+        
+        print(id_usuario)
         
         cursor.execute("SELECT nombre_usuario, apellidos_usuario FROM usuarios WHERE id_usuario = ?", (id_usuario,))
         resultado = fetch_all_dict(cursor)
@@ -269,7 +277,7 @@ def eliminar_usuario(id_usuario: int, usuario=Depends(verify_access([1]))):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={"error": "Error interno del servidor"}
-        )
+        )   
     finally:
         if 'cursor' in locals():
             cursor.close()
