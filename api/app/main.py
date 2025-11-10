@@ -2,14 +2,17 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import usuarios, departamentos
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
 app = FastAPI()
 
+IP_FRONTEND_NETWORK = os.getenv("IP_FRONTEND_NETWORK")
+
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "http://192.168.1.81:5173"
+    IP_FRONTEND_NETWORK
 ]
 
 app.add_middleware(
