@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from app.core.database import fetch_all_dict, get_connection
 from app.models.modelo_usuario import CredencialesUsuario, DataAgregarUsuario, DatosActualizarUsuario
 from app.auth.jwt_handler import crear_token
-from app.auth.dependencies import verify_token
+from app.auth.dependencies import verify_access
 
 router = APIRouter(
     prefix="/usuarios",
@@ -67,7 +67,7 @@ def login(credenciales_usuario: CredencialesUsuario):
             connection.close()
 
 @router.get("/obtener_usuarios", status_code=status.HTTP_200_OK)
-def obtener_usuarios(usuario=Depends(verify_token)):
+def obtener_usuarios(usuario=Depends(verify_access([1]))):
     try:
         connection = get_connection()
         cursor = connection.cursor()
@@ -110,7 +110,7 @@ def obtener_usuarios(usuario=Depends(verify_token)):
             connection.close()
 
 @router.post("/agregar_usuario", status_code=status.HTTP_200_OK)
-def agregar_usuario(data_usuario: DataAgregarUsuario, usuario=Depends(verify_token)):
+def agregar_usuario(data_usuario: DataAgregarUsuario, usuario=Depends(verify_access([1]))):
     try:
         connection = get_connection()
         cursor = connection.cursor()
@@ -161,7 +161,7 @@ def agregar_usuario(data_usuario: DataAgregarUsuario, usuario=Depends(verify_tok
             connection.close()
 
 @router.put("/actualizar_usuario", status_code=status.HTTP_200_OK)
-def actualizar_usuario(datos_usuario: DatosActualizarUsuario, usuario=Depends(verify_token)):
+def actualizar_usuario(datos_usuario: DatosActualizarUsuario, usuario=Depends(verify_access([1]))):
     try:
         connection = get_connection()
         cursor = connection.cursor()
@@ -220,6 +220,48 @@ def actualizar_usuario(datos_usuario: DatosActualizarUsuario, usuario=Depends(ve
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail={"error": "No se ha podido editar el cliente, intente más tarde"}
             )
+    except HTTPException as err:
+        raise err
+    except Exception as err:
+        print(f"Error interno: {err}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"error": "Error interno del servidor"}
+        )
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'connection' in locals():
+            connection.close()
+
+@router.delete("/eliminar_usuario", status_code=status.HTTP_200_OK)
+def eliminar_usuario(id_usuario: int, usuario=Depends(verify_access([1]))):
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+        
+        cursor.execute("SELECT nombre_usuario, apellidos_usuario FROM usuarios WHERE id_usuario = ?", (id_usuario,))
+        resultado = fetch_all_dict(cursor)
+        
+        if not resultado:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"error": "El usuario no existe"}
+            )
+
+        cursor.execute("UPDATE usuarios SET activo = 0 WHERE id_usuario = ?", (id_usuario,))
+
+        if cursor.rowcount == 0:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"error": "No se ha podido eliminar el usuario"}
+            )
+
+        connection.commit()
+
+        return {
+            "message": "Usuario eliminado correctamente"
+        }
     except HTTPException as err:
         raise err
     except Exception as err:

@@ -8,7 +8,7 @@ import { jwtDecode } from "jwt-decode";
 import { Eye, EyeClosed } from 'lucide-react';
 import AvisoToastStack from './AvisoToastStack';
 import { useAvisos } from '../hooks/useAvisos';
-import { pre } from 'motion/react-client';
+import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => {
     const [FormDatos, setFormDatos] = useState({
@@ -27,6 +27,7 @@ const Login = () => {
     const [mostrarContraseña, setMostrarContraseña] = useState(false);
     const { avisos, cerrarAviso, mostrarAviso } = useAvisos()
     const navigate = useNavigate()
+    const { loginUsuario } = useAuth()
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -85,7 +86,8 @@ const Login = () => {
             const resultado = await iniciarSesion(FormDatos);
 
             if (resultado.ok && resultado.token) {
-                //localStorage.setItem("token", resultado.token);
+                loginUsuario(resultado.token);
+
                 const decoded = jwtDecode<TokenPayload>(resultado.token);
 
                 if (decoded.id_departamento === 1) navigate("/usuarios");

@@ -1,4 +1,4 @@
-import type { DatosLogin } from "./interfaces";
+import type { DatosLogin, Usuario } from "./interfaces";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL
 
@@ -30,6 +30,33 @@ export const iniciarSesion = async (datos: DatosLogin): Promise<{ ok: boolean, t
         throw new Error("Error al conectar con el servidor");
     }
 };
+
+export const obtenerUsuarios = async (): Promise<{ ok: boolean, usuarios?: Usuario[] }> => {
+    try {
+        const token = localStorage.getItem("token")
+
+        const response = await fetch(`${API_BASE_URL}/usuarios/obtener_usuarios`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        const usuarios = await response.json();
+
+        if (response.ok) {
+            return {
+                ok: true,
+                usuarios: usuarios
+            }
+        }
+        
+        return {
+            ok: false
+        }
+    } catch (error) {
+        throw new Error("Error al conectar con el servidor");
+    }
+}
 
 export function cerrarSesion(): "ok" {
     localStorage.removeItem("token")

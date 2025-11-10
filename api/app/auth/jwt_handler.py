@@ -20,6 +20,9 @@ def crear_token(usuario: dict, nombre_departamento: str):
         "id_usuario": usuario["id_usuario"],
         "id_departamento": usuario["id_departamento"],
         "nombre_departamento": nombre_departamento,
+        "nombre_usuario": usuario['nombre_usuario'],
+        "apellidos_usuario": usuario['apellidos_usuario'],
+        "correo_usuario": usuario['correo_usuario'],
         "exp": datetime.now(timezone.utc) + timedelta(days=1)
     }
 
