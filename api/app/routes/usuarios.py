@@ -93,7 +93,7 @@ def refresh_token(request: Request):
         print(f"Error en refresh: {err}")
         raise HTTPException(status_code=500, detail="Error interno del servidor")
     
-# TODO: Implementar el refresh_token y access_token  para hacer que el usuario no se interrumpa
+# TODO: Implementar el refresh_token y access_token para hacer que el usuario no se interrumpa
 @router.post("/iniciar_sesion", status_code=status.HTTP_200_OK)
 def login(credenciales_usuario: CredencialesUsuario, response: Response):
     try:
@@ -120,8 +120,9 @@ def login(credenciales_usuario: CredencialesUsuario, response: Response):
         cursor.execute("SELECT nombre_departamento FROM departamentos WHERE id_departamento = ?", (usuario[0]['id_departamento'],))
         nombre_departamento = fetch_all_dict(cursor)[0]["nombre_departamento"]
 
-        token = crear_token(usuario[0], nombre_departamento)
-
+        access_token = crear_token(usuario[0], nombre_departamento, minutos=10)
+        _refesh_token = crear_token(usuario[0], nombre_departamento, dias=1)
+        
         response = JSONResponse(
             content={
                 "message": "Inicio de sesión exitoso",
@@ -138,11 +139,21 @@ def login(credenciales_usuario: CredencialesUsuario, response: Response):
 
         response.set_cookie(
             key="access_token",
-            value=token,
+            value=access_token,
             httponly=True,
             secure=False,
             samesite="lax",
-            max_age=60 * 60 * 24,
+            max_age=10 * 60,
+            path="/"
+        )
+
+        response.set_cookie(
+            key="refresh_token",
+            value=_refesh_token,
+            httponly=True,
+            secure=False,
+            samesite="lax",
+            max_age=24 * 60 * 60,
             path="/"
         )
 

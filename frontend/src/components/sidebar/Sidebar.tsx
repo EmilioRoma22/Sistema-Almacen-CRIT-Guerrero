@@ -36,7 +36,7 @@ export const Sidebar = () => {
 
     return (
         <React.Fragment>
-            <div className="min-h-screen flex bg-white text-white overflow-hidden">
+            <div className="min-h-screen flex text-white overflow-hidden">
                 {esMobile && (
                     <button
                         onClick={() => setOpen(true)}
@@ -65,26 +65,26 @@ export const Sidebar = () => {
                         width: esMobile ? 220 : open ? 230 : 80,
                     }}
                     transition={{ type: "tween", duration: 0.3 }}
-                    className={`bg-[#502779] border-r border-gray-200 fixed md:static top-0 left-0 h-full z-50 shadow-md overflow-y-auto md:overflow-visible`}
+                    className={`bg-[#502779] fixed md:static top-0 left-0 h-full z-50 shadow-md overflow-y-auto md:overflow-visible`}
                 >
                     <div className="flex flex-col justify-between h-full overflow-hidden">
                         <div>
-                            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+                            <div className={`flex items-center justify-between ${!open ? "px-2.5" : "px-4"} py-3 border-b border-gray-200`}>
                                 <motion.img
                                     animate={{ opacity: open ? 1 : 0 }}
                                     className={`w-10 h-10 bg-white/10 p-1 rounded-full ${!open && "hidden"}`}
                                     src={logo_teleton}
                                 />
-                                <div className="flex gap-x-4">
+                                <div className={`flex gap-x-4 ${!open && "py-2"}`}>
                                     <button
                                         onClick={() => setOpen(!open)}
-                                        className={`text-white hover:text-gray-200 transition cursor-pointer ${!open && "rotate-180"}`}
+                                        className={`text-white hover:text-gray-200 transition cursor-pointer`}
                                     >
                                         <Bell size={22} />
                                     </button>
                                     <button
                                         onClick={() => setOpen(!open)}
-                                        className={`text-white hover:text-gray-200 transition cursor-pointer ${!open && "rotate-180"}`}
+                                        className={`text-white hover:text-gray-200 transition cursor-pointer`}
                                     >
                                         <Menu size={22} />
                                     </button>
@@ -149,7 +149,7 @@ export const Sidebar = () => {
                             <motion.div
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="flex items-center gap-3 px-3 py-2 rounded-lg text-red-400 hover:bg-red-100 cursor-pointer transition"
+                                className="flex items-center gap-3 px-3 py-2 rounded-lg text-red-300 hover:bg-red-100 hover:text-red-700 cursor-pointer transition"
                                 onClick={() => {
                                     cerrarSesionUsuario();
                                     navigate("/");

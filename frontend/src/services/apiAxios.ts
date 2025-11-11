@@ -1,3 +1,4 @@
+// apiAxios.ts
 import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -9,6 +10,16 @@ const apiAxios = axios.create({
 
 let isRefreshing = false;
 let refreshPromise: Promise<any> | null = null;
+
+// Variables que se van a setear desde AuthContext
+let setUsuarioCallback: ((usuario: any) => void) | null = null;
+let setSesionExpiradaCallback: ((value: boolean) => void) | null = null;
+
+// Función para registrar los setters
+export const registerAuthHandlers = (setUsuario: any, setSesionExpirada: any) => {
+    setUsuarioCallback = setUsuario;
+    setSesionExpiradaCallback = setSesionExpirada;
+};
 
 apiAxios.interceptors.response.use(
     (response) => response,
@@ -38,12 +49,18 @@ apiAxios.interceptors.response.use(
             }
 
             return apiAxios(originalRequest);
-        } catch (refreshError) {
+        } catch (refreshError: any) {
             isRefreshing = false;
             refreshPromise = null;
+
+            if (refreshError.response?.status === 401) {
+                setUsuarioCallback && setUsuarioCallback(null);
+                setSesionExpiradaCallback && setSesionExpiradaCallback(true);
+            }
+
             return Promise.reject(refreshError);
         }
     }
-)
+);
 
 export default apiAxios;
