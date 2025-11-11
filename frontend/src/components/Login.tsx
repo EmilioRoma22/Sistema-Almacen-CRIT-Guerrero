@@ -1,10 +1,8 @@
 import logo_teleton from '../assets/teleton_logo.svg';
 import { useEffect, useRef, useState } from "react";
-import { cerrarSesion, iniciarSesion } from "../services/api";
-import { type TokenPayload } from '../services/interfaces';
+import { iniciarSesion } from "../services/apiUsuarios";
 import { Loading } from './Loading';
 import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from "jwt-decode";
 import { Eye, EyeClosed } from 'lucide-react';
 import AvisoToastStack from './AvisoToastStack';
 import { useAvisos } from '../hooks/useAvisos';
@@ -23,36 +21,20 @@ const Login = () => {
         correo_usuario: useRef<HTMLInputElement>(null),
         password_usuario: useRef<HTMLInputElement>(null),
     };
-    const [loading, setLoading] = useState(false);
+    const [_loading, setLoading] = useState(false);
     const [mostrarContraseña, setMostrarContraseña] = useState(false);
     const { avisos, cerrarAviso, mostrarAviso } = useAvisos()
     const navigate = useNavigate()
-    const { loginUsuario } = useAuth()
+    const { setUsuario, loading, usuario } = useAuth()
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-            return;
+        if (!loading && usuario) {
+            if (usuario.id_departamento === 1) navigate("/usuarios");
+            else if (usuario.id_departamento === 2) navigate("/entradas");
+            else if (usuario.id_departamento === 3) navigate("/entregas");
+            else navigate("/usuarios");
         }
-
-        try {
-            const decoded = jwtDecode<TokenPayload>(token);
-            const ahora = Date.now() / 1000;
-
-            if (!decoded.exp || decoded.exp < ahora) {
-                cerrarSesion()
-                return;
-            }
-
-            if (decoded.id_departamento === 1) navigate("/usuarios");
-            else if (decoded.id_departamento === 2) navigate("/entradas");
-            else if (decoded.id_departamento === 3) navigate("/entregas");
-            else navigate("/resguardos");
-        } catch {
-            navigate("/");
-        }
-    }, []);
+    }, [usuario, loading]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -85,13 +67,11 @@ const Login = () => {
         try {
             const resultado = await iniciarSesion(FormDatos);
 
-            if (resultado.ok && resultado.token) {
-                loginUsuario(resultado.token);
+            if (resultado.ok) {
+                setUsuario(resultado.usuario);
 
-                const decoded = jwtDecode<TokenPayload>(resultado.token);
-
-                if (decoded.id_departamento === 1) navigate("/usuarios");
-                else if (decoded.id_departamento === 2) navigate("/entradas");
+                if (resultado.usuario.id_departamento === 1) navigate("/usuarios");
+                else if (resultado.usuario.id_departamento === 2) navigate("/entradas");
                 else navigate("/resguardos");
             } else {
                 setErrores(prev => ({
@@ -188,7 +168,7 @@ const Login = () => {
             </div>
 
             <AvisoToastStack avisos={avisos} onClose={cerrarAviso} />
-            {loading && (
+            {_loading && (
                 <Loading />
             )}
         </>

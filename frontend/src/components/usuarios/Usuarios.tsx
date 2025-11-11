@@ -2,7 +2,8 @@ import { Search, Trash2, UserPlus, UserRoundPen } from "lucide-react"
 import React, { useEffect, useState } from "react"
 import type { Departamento, Usuario } from "../../services/interfaces";
 import { useAvisos } from "../../hooks/useAvisos";
-import { obtenerDepartamentos, obtenerUsuarios } from "../../services/api";
+import { obtenerUsuarios } from "../../services/apiUsuarios";
+import { obtenerDepartamentos } from "../../services/apiDepartamentos";
 import AvisoToastStack from "../AvisoToastStack";
 import { Loading } from "../Loading";
 import { ErrorCarga } from "../errores/ErrorCarga";
@@ -134,7 +135,7 @@ export const Usuarios = () => {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto max-h-[680px] scrollbar-vertical">
                     <table className="min-w-[500px] w-full text-sm md:text-base">
                         <thead className="bg-[#e8e1ef] text-[#502779] sticky top-0 z-10">
                             <tr>
@@ -249,17 +250,19 @@ export const Usuarios = () => {
 
             <AnimatePresence>
                 {modalEliminar && (
-                    <ModalEliminarUsuario 
-                        cerrarModal={()=>setModalEliminarVisible(false)}
+                    <ModalEliminarUsuario
+                        cerrarModal={() => setModalEliminarVisible(false)}
                         usuario={usuarioSeleccionado}
                         mostrarAviso={mostrarAviso}
                     />
                 )}
             </AnimatePresence>
 
-            {loading && (
-                <Loading />
-            )}
+            <AnimatePresence>
+                {loading && (
+                    <Loading />
+                )}
+            </AnimatePresence>
 
             {error && (
                 <ErrorCarga mensaje="Hubo un error al cargar los usuarios... Lamentamos las molestias, intente de nuevo." />

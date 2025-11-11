@@ -49,3 +49,14 @@ export interface Departamento {
     cantidad_usuarios: number,
     correo_usuario: string
 }
+
+export type DatosEditarDepartamento = {
+    id_departamento: number
+    nombre_departamento: string,
+    id_responsable: number
+}
+
+export interface Categoria {
+    id_categoria: number,
+    nombre_categoria: string
+}

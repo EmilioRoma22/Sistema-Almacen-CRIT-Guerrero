@@ -1,38 +1,40 @@
 import { motion } from "framer-motion";
-import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Trash2 } from "lucide-react";
 import { Loading } from "../Loading";
-import { eliminarUsuario } from "../../services/apiUsuarios";
-import type { Usuario } from "../../services/interfaces";
+import Error from "../errores/Error";
+import { eliminarDepartamento } from "../../services/apiDepartamentos";
+
+type InfoDepartamento = {
+    id_departamento: number,
+    nombre_departamento: string
+}
 
 type Props = {
-    cerrarModal: () => void
+    cerrarModal: () => void,
     mostrarAviso: (mensaje: string, tipo: "error" | "success" | "aviso") => void
-    usuario: Usuario | null
-};
+    infoDepartamento: InfoDepartamento
+}
 
-const ModalEliminarUsuario = ({ cerrarModal, mostrarAviso, usuario }: Props) => {
-    const [loading, setLoading] = useState(false);
+export const ModalEliminarDepartamento = ({ cerrarModal, mostrarAviso, infoDepartamento }: Props) => {
+    const [errorServidor, setErrorServidor] = useState(false)
+    const [loading, setLoading] = useState(false)
 
-    async function confirmarEliminarUsuario(_event: React.MouseEvent<HTMLButtonElement>): Promise<void> {
-        if (!usuario) {
-            cerrarModal();
-            return
-        };
+    async function quitarDepartamento(_event: React.MouseEvent<HTMLButtonElement>): Promise<void> {
         setLoading(true);
 
         try {
-            const respuesta = await eliminarUsuario(usuario.id_usuario);
+            const respuesta = await eliminarDepartamento({ id_departamento: infoDepartamento.id_departamento })
 
             if (respuesta.ok) {
-                mostrarAviso(respuesta.message || "Se ha eliminado el usuario correctamente", "success");
-                cerrarModal();
+                mostrarAviso(respuesta.message || "Se ha eliminado al departamento", "success")
+                cerrarModal()
             } else {
-                mostrarAviso(respuesta.message || "No se ha podido actualizar el usuario", "error");
-                cerrarModal();
+                mostrarAviso(respuesta.message || "No se ha podido eliminar el departamento", "error");
             }
         } catch (error) {
-            mostrarAviso("Error del servidor", "error");
+            setErrorServidor(true);
+            console.error(error);
         } finally {
             setLoading(false);
         }
@@ -51,6 +53,14 @@ const ModalEliminarUsuario = ({ cerrarModal, mostrarAviso, usuario }: Props) => 
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, []);
+
+    if (errorServidor) {
+        return (
+            <div className="fixed z-50 inset-0 bg-white flex justify-center items-center">
+                <Error />
+            </div>
+        )
+    }
 
     return (
         <motion.div
@@ -79,21 +89,20 @@ const ModalEliminarUsuario = ({ cerrarModal, mostrarAviso, usuario }: Props) => 
                 </div>
 
                 <p className="text-center text-gray-800 text-base mb-5">
-                    ¿Deseas eliminar al usuario <strong>{usuario?.nombre_usuario} {usuario?.apellidos_usuario}</strong>?
+                    ¿Deseas eliminar <strong>{infoDepartamento.nombre_departamento}</strong>?
                     <br />
-                    <span className="text-sm text-gray-500">Esta acción no se puede deshacer.</span>
+                    <span className="text-sm text-gray-500"> Esta acción no se podrá deshacer.</span>
                 </p>
 
                 <div className="flex justify-center gap-4">
                     <button
-                        onClick={confirmarEliminarUsuario}
+                        onClick={quitarDepartamento}
                         className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 shadow-sm transition-colors ease-in-out duration-200 cursor-pointer"
                         autoFocus
                     >
                         Confirmar
                     </button>
                     <button
-                        type="button"
                         onClick={() => cerrarModal()}
                         className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 shadow-sm transition-colors ease-in-out duration-200 cursor-pointer"
                     >
@@ -101,10 +110,8 @@ const ModalEliminarUsuario = ({ cerrarModal, mostrarAviso, usuario }: Props) => 
                     </button>
                 </div>
 
-                {loading && (<Loading mensaje="Eliminando usuario..." />)}
+                {loading && (<Loading mensaje="Eliminando departamento..." />)}
             </motion.div>
         </motion.div>
-    );
+    )
 }
-
-export default ModalEliminarUsuario;

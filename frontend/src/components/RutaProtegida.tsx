@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
-import Error from "./errores/Error";
 import { Loading } from "./Loading";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -15,15 +14,22 @@ export default function RutaProtegida({ permitidoPara = [] }: RutaProtegidaProps
     useEffect(() => {
         if (!loading) {
             if (!usuario) {
-                navigate("/");
-            } else if (permitidoPara.length > 0 && !permitidoPara.includes(usuario.id_departamento)) {
-                navigate("/acceso-denegado");
+                navigate("/", { replace: true });
+                return;
             }
+
+            if (
+                permitidoPara.length > 0 &&
+                !permitidoPara.map(String).includes(String(usuario.id_departamento))
+            ) {
+                navigate("/acceso-denegado", { replace: true });
+            }
+
         }
     }, [usuario, loading, navigate, permitidoPara]);
 
     if (loading) return <Loading />;
-    if (!usuario) return <Error />;
+    if (!usuario) return null;
 
     return <Outlet />;
 }

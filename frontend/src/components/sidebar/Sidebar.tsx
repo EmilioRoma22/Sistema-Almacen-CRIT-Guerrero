@@ -1,7 +1,8 @@
+import logo_teleton from "../../assets/teleton_logo.svg"
 import { AnimatePresence, motion } from "motion/react"
 import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom";
-import { Box, BoxesIcon, Building, ChartColumn, FileText, HandHelping, History, LogOut, Menu, RefreshCcwDotIcon, ShoppingBag, User, UsersRound } from "lucide-react";
+import { Bell, Box, BoxesIcon, Building, ChartColumn, FileText, HandHelping, History, LogOut, Menu, RefreshCcwDotIcon, ShoppingBag, User, UsersRound } from "lucide-react";
 import { elementosPermitidos } from "../../utils/elementosPermitidos";
 import { useAuth } from "../../contexts/AuthContext";
 import { useIsMobile } from "../../hooks/useEsMobile";
@@ -31,11 +32,11 @@ export const Sidebar = () => {
     useEffect(() => {
         if (esMobile) setOpen(false)
         else setOpen(true)
-    }, [])
+    }, [esMobile])
 
     return (
         <React.Fragment>
-            <div className="min-h-screen flex bg-gray-50 text-gray-800 overflow-hidden">
+            <div className="min-h-screen flex bg-white text-white overflow-hidden">
                 {esMobile && (
                     <button
                         onClick={() => setOpen(true)}
@@ -64,23 +65,31 @@ export const Sidebar = () => {
                         width: esMobile ? 220 : open ? 230 : 80,
                     }}
                     transition={{ type: "tween", duration: 0.3 }}
-                    className={`bg-white border-r border-gray-200 fixed md:static top-0 left-0 h-full z-50 shadow-md overflow-y-auto md:overflow-visible`}
+                    className={`bg-[#502779] border-r border-gray-200 fixed md:static top-0 left-0 h-full z-50 shadow-md overflow-y-auto md:overflow-visible`}
                 >
                     <div className="flex flex-col justify-between h-full overflow-hidden">
                         <div>
-                            <div className="flex items-center justify-between px-4 py-5 border-b border-gray-200">
-                                <motion.h1
+                            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+                                <motion.img
                                     animate={{ opacity: open ? 1 : 0 }}
-                                    className={`text-lg font-bold text-gray-900 tracking-wide ${!open && "hidden"}`}
-                                >
-                                    {usuario?.nombre_departamento ? usuario.nombre_departamento : "SISTEMA DE ALMACEN"}
-                                </motion.h1>
-                                <button
-                                    onClick={() => setOpen(!open)}
-                                    className={`text-gray-900 hover:text-gray-800 transition cursor-pointer ${!open && "rotate-180"}`}
-                                >
-                                    <Menu size={22} />
-                                </button>
+                                    className={`w-10 h-10 bg-white/10 p-1 rounded-full ${!open && "hidden"}`}
+                                    src={logo_teleton}
+                                />
+                                <div className="flex gap-x-4">
+                                    <button
+                                        onClick={() => setOpen(!open)}
+                                        className={`text-white hover:text-gray-200 transition cursor-pointer ${!open && "rotate-180"}`}
+                                    >
+                                        <Bell size={22} />
+                                    </button>
+                                    <button
+                                        onClick={() => setOpen(!open)}
+                                        className={`text-white hover:text-gray-200 transition cursor-pointer ${!open && "rotate-180"}`}
+                                    >
+                                        <Menu size={22} />
+                                    </button>
+                                    
+                                </div>
                             </div>
 
                             <nav className="flex flex-col mt-3">
@@ -96,8 +105,8 @@ export const Sidebar = () => {
                                                 navigate(item.ruta)
                                             }}
                                             className={`flex items-center gap-3 px-5 py-3 mx-2 my-1 rounded-xl cursor-pointer transition-all duration-300 ${location.pathname === item.ruta
-                                                ? "bg-[#502779] text-white font-medium border-l-4 border-yellow-400"
-                                                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                                ? "bg-white text-[#502779] font-medium border-l-4 border-yellow-400"
+                                                : "text-white hover:bg-gray-100 hover:text-gray-900"
                                                 }`}
                                         >
                                             <div>{item.icon}</div>
@@ -122,16 +131,16 @@ export const Sidebar = () => {
                         <div className="border-t border-gray-200 py-4 px-4 flex flex-col gap-6 mt-auto">
                             <motion.div
                                 whileHover={{ scale: 1.02 }}
-                                className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-100 transition"
+                                className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-purple-800 transition"
                             >
-                                <User className="text-gray-700" size={20} />
+                                <User className="text-white" size={20} />
                                 {open && (
                                     <div className="flex flex-col">
-                                        <span className="text-sm font-semibold text-gray-900 leading-tight">
+                                        <span className="text-sm font-semibold text-white leading-tight">
                                             {usuario?.nombre_usuario || "Usuario"}
                                         </span>
-                                        <span className="text-xs text-gray-500">
-                                            {usuario?.correo_usuario || "sin información"}
+                                        <span className="text-xs text-gray-200 truncate whitespace-nowrap overflow-hidden">
+                                            {usuario?.nombre_departamento || "sin información"}
                                         </span>
                                     </div>
                                 )}
@@ -140,7 +149,7 @@ export const Sidebar = () => {
                             <motion.div
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="flex items-center gap-3 px-3 py-2 rounded-lg text-red-600 hover:bg-red-100 cursor-pointer transition"
+                                className="flex items-center gap-3 px-3 py-2 rounded-lg text-red-400 hover:bg-red-100 cursor-pointer transition"
                                 onClick={() => {
                                     cerrarSesionUsuario();
                                     navigate("/");

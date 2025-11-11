@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import usuarios, departamentos
+from app.routes import usuarios, departamentos, categorias
 from dotenv import load_dotenv
 import os
 
@@ -25,3 +25,4 @@ app.add_middleware(
 
 app.include_router(usuarios.router)
 app.include_router(departamentos.router)
+app.include_router(categorias.router)

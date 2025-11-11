@@ -9,12 +9,19 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 
-def crear_token(usuario: dict, nombre_departamento: str):
+def crear_token(usuario: dict, nombre_departamento: str, minutos: int = None, dias: int = None):
     if not SECRET_KEY:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={"error": "Error del servidor, por favor intente mas tarde."}
+            detail={"error": "Error del servidor, por favor intente más tarde."}
         )
+
+    if minutos:
+        exp = datetime.now(timezone.utc) + timedelta(minutes=minutos)
+    elif dias:
+        exp = datetime.now(timezone.utc) + timedelta(days=dias)
+    else:
+        exp = datetime.now(timezone.utc) + timedelta(days=1)
 
     payload = {
         "id_usuario": usuario["id_usuario"],
@@ -23,7 +30,7 @@ def crear_token(usuario: dict, nombre_departamento: str):
         "nombre_usuario": usuario['nombre_usuario'],
         "apellidos_usuario": usuario['apellidos_usuario'],
         "correo_usuario": usuario['correo_usuario'],
-        "exp": datetime.now(timezone.utc) + timedelta(days=1)
+        "exp": exp
     }
 
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)

@@ -1,13 +1,20 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.auth.jwt_handler import decodificar_token
 from typing import List
 
 auth_scheme = HTTPBearer()
 
-def verify_token(credentials: HTTPAuthorizationCredentials = Depends(auth_scheme)):
-    token = credentials.credentials
+def verify_token(request: Request):
+    token = request.cookies.get("access_token")
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No se encontró el token en las cookies"
+        )
+
     payload = decodificar_token(token)
+
     if not payload or "id_usuario" not in payload:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

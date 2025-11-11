@@ -8,6 +8,7 @@ import { Usuarios } from './components/usuarios/Usuarios'
 import { Entradas } from './components/entradas/Entradas'
 import LayoutPrivado from './components/LayoutPrivado'
 import { AuthProvider } from './contexts/AuthContext'
+import { Departamentos } from './components/departamentos/Departamentos'
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
@@ -19,14 +20,12 @@ createRoot(document.getElementById('root')!).render(
           <Route element={<LayoutPrivado />}>
             <Route element={<RutaProtegida permitidoPara={[1]} />}>
               <Route path="/usuarios" element={<Usuarios />} />
+              <Route path="/departamentos" element={<Departamentos />} />
             </Route>
 
             <Route element={<RutaProtegida permitidoPara={[1, 2]} />}>
               <Route path="/entradas" element={<Entradas />} />
             </Route>
-
-
-
           </Route>
 
         </Routes>

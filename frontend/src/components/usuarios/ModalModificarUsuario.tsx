@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Eye, EyeClosed, UserPen } from "lucide-react";
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { Loading } from "../Loading";
-import { actualizar_usuario } from "../../services/api";
+import { actualizar_usuario } from "../../services/apiUsuarios";
 import type { Departamento } from "../../services/interfaces";
 import { useIsMobile } from "../../hooks/useEsMobile";
 
