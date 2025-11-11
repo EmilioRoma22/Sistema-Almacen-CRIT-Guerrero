@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Request, Response, status, Depends
 from fastapi.responses import JSONResponse
 from app.core.database import fetch_all_dict, get_connection
 from app.models.modelo_usuario import CredencialesUsuario, DataAgregarUsuario, DatosActualizarUsuario
-from app.auth.jwt_handler import crear_token, decodificar_token
+from app.auth.jwt_handler import crear_token
 from app.auth.dependencies import verify_access
 from datetime import datetime, timedelta, timezone
 import jwt
@@ -46,7 +46,54 @@ def obtener_usuario_actual(request: Request):
     except Exception as err:
         print("Error en /me:", err)
         raise HTTPException(status_code=500, detail="Error interno del servidor")
+    
+@router.post("/refresh")
+def refresh_token(request: Request):
+    try:
+        refresh_token = request.cookies.get("refresh_token")
+        if not refresh_token:
+            raise HTTPException(status_code=401, detail="No hay token de actualización")
+        try:
+            payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(status_code=401, detail="El token de actualización ha expirado")
+        except jwt.PyJWTError:
+            raise HTTPException(status_code=401, detail="Token inválido")
 
+        nuevo_access_token = jwt.encode(
+            {
+                "id_usuario": payload["id_usuario"],
+                "id_departamento": payload["id_departamento"],
+                "nombre_departamento": payload["nombre_departamento"],
+                "nombre_usuario": payload["nombre_usuario"],
+                "apellidos_usuario": payload["apellidos_usuario"],
+                "correo_usuario": payload["correo_usuario"],
+                "exp": datetime.now(timezone.utc) + timedelta(minutes=15)
+            },
+            SECRET_KEY,
+            algorithm=ALGORITHM
+        )
+
+        response = JSONResponse(content={"message": "Token actualizado correctamente"})
+        response.set_cookie(
+            key="access_token",
+            value=nuevo_access_token,
+            httponly=True,
+            secure=False,
+            samesite="lax",
+            max_age=60 * 15,
+            path="/"
+        )
+        return response
+
+    except HTTPException as err:
+        raise err
+
+    except Exception as err:
+        print(f"Error en refresh: {err}")
+        raise HTTPException(status_code=500, detail="Error interno del servidor")
+    
+# TODO: Implementar el refresh_token y access_token  para hacer que el usuario no se interrumpa
 @router.post("/iniciar_sesion", status_code=status.HTTP_200_OK)
 def login(credenciales_usuario: CredencialesUsuario, response: Response):
     try:
@@ -122,52 +169,6 @@ def cerrar_sesion():
     response.delete_cookie("refresh_token", path="/")
 
     return response
-
-@router.post("/refresh")
-def refresh_token(request: Request):
-    try:
-        refresh_token = request.cookies.get("refresh_token")
-        if not refresh_token:
-            raise HTTPException(status_code=401, detail="No hay token de actualización")
-        try:
-            payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
-        except jwt.ExpiredSignatureError:
-            raise HTTPException(status_code=401, detail="El token de actualización ha expirado")
-        except jwt.PyJWTError:
-            raise HTTPException(status_code=401, detail="Token inválido")
-
-        nuevo_access_token = jwt.encode(
-            {
-                "id_usuario": payload["id_usuario"],
-                "id_departamento": payload["id_departamento"],
-                "nombre_departamento": payload["nombre_departamento"],
-                "nombre_usuario": payload["nombre_usuario"],
-                "apellidos_usuario": payload["apellidos_usuario"],
-                "correo_usuario": payload["correo_usuario"],
-                "exp": datetime.now(timezone.utc) + timedelta(minutes=15)
-            },
-            SECRET_KEY,
-            algorithm=ALGORITHM
-        )
-
-        response = JSONResponse(content={"message": "Token actualizado correctamente"})
-        response.set_cookie(
-            key="access_token",
-            value=nuevo_access_token,
-            httponly=True,
-            secure=False,
-            samesite="lax",
-            max_age=60 * 15,
-            path="/"
-        )
-        return response
-
-    except HTTPException as err:
-        raise err
-
-    except Exception as err:
-        print(f"Error en refresh: {err}")
-        raise HTTPException(status_code=500, detail="Error interno del servidor")
 
 @router.get("/obtener_usuarios", status_code=status.HTTP_200_OK)
 def obtener_usuarios(usuario=Depends(verify_access([1]))):
