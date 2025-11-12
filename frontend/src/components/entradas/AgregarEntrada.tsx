@@ -426,7 +426,7 @@ const AgregarEntrada = () => {
                             </div>
 
                             <div
-                                className={`space-y-2 overflow-y-auto rounded-xl ${categoria?.id_categoria === 3 ? "lg:max-h-[470px]" : "lg:max-h-[530px]"
+                                className={`space-y-2 overflow-y-auto rounded-xl ${categoria?.id_categoria === 3 ? "lg:max-h-[470px]" : "lg:max-h-[620px]"
                                     } max-h-[400px]`}
                             >
                                 {(productosAgregados.length !== 0 ? (
@@ -481,7 +481,7 @@ const AgregarEntrada = () => {
                         </div>
                     )}
 
-                    <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-6 mb-6">
+                    <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-6">
                         <button
                             onClick={() => {
                                 if (indiceEditando === null) {

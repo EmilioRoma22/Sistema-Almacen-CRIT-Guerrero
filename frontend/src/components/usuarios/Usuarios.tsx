@@ -135,7 +135,7 @@ export const Usuarios = () => {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto max-h-[680px] scrollbar-vertical">
+                <div className="overflow-x-auto max-h-[820px] scrollbar-vertical">
                     <table className="min-w-[500px] w-full text-sm md:text-base">
                         <thead className="bg-[#e8e1ef] text-[#502779] sticky top-0 z-10">
                             <tr>

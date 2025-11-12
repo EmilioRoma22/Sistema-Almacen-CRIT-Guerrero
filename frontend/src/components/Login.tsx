@@ -168,7 +168,7 @@ const Login = () => {
             </div>
 
             <AvisoToastStack avisos={avisos} onClose={cerrarAviso} />
-            {_loading && (
+            {(_loading || loading) && (
                 <Loading />
             )}
         </>

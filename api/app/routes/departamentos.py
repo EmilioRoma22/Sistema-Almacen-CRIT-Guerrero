@@ -9,7 +9,7 @@ router = APIRouter(
 )
 
 @router.get("/obtener_departamentos", status_code=status.HTTP_200_OK)
-def obtener_departamentos(usuario=Depends(verify_access([1]))):
+def obtener_departamentos(usuario=Depends(verify_access([1, 2]))):
     try:
         connection = get_connection()
         cursor = connection.cursor()

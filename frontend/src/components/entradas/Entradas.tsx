@@ -162,7 +162,7 @@ export const Entradas = () => {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto max-h-[780px]">
+                <div className="overflow-x-auto max-h-[780px] scrollbar-vertical">
                     <table className="min-w-[600px] w-full text-sm">
                         <thead className="bg-[#e8e1ef] text-[#502779] sticky top-0 z-10">
                             <tr>
