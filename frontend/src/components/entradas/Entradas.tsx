@@ -1,14 +1,17 @@
-import { BoxesIcon, Plus, Search } from "lucide-react"
+import { Box, BoxesIcon, HandHelping, Plus, Search } from "lucide-react"
 import React, { useEffect, useState } from "react"
 import { useAuth } from "../../contexts/AuthContext"
 import { useAvisos } from "../../hooks/useAvisos"
 import { useNavigate } from "react-router-dom"
 import { obtenerCategorias } from "../../services/apiCategorias"
-import type { Categoria } from "../../services/interfaces"
+import type { Categoria, Entradas as Entradas_ } from "../../services/interfaces"
 import AvisoToastStack from "../AvisoToastStack"
 import { Loading } from "../Loading"
 import { ErrorCarga } from "../errores/ErrorCarga"
 import { AnimatePresence } from "motion/react"
+import { obtenerEntradas } from "../../services/apiEntradas"
+import { ModalCategorias } from "./ModalCategorias"
+import { imprimirPDF } from "../../services/imprimirPDF"
 
 export const Entradas = () => {
     const { usuario } = useAuth()
@@ -18,6 +21,7 @@ export const Entradas = () => {
     const [busqueda, setBusqueda] = useState("")
     const [modoAgregarActivo, setModoAgregarActivo] = useState(false)
     const { avisos, mostrarAviso, cerrarAviso } = useAvisos();
+    const [entradas, setEntradas] = useState<Entradas_[]>()
     const [categorias, setCategorias] = useState<Categoria[]>()
     const opciones_categorias = (categorias ?? []).filter(categoria => categoria.id_categoria !== 3)
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("todas")
@@ -48,13 +52,59 @@ export const Entradas = () => {
         }
     }
 
+    const obtEntradas = async () => {
+        try {
+            const respuesta = await obtenerEntradas()
+            if (respuesta.ok) setEntradas(respuesta.entradas)
+            else setError(true)
+        } catch (error) {
+            setError(true)
+        }
+    }
+
     useEffect(() => {
         setLoading(true)
         Promise.all([
             obtCategorias(),
+            obtEntradas()
         ])
         setLoading(false)
     }, [])
+
+    useEffect(() => {
+        const mensaje = sessionStorage.getItem("mensaje_exito");
+        const pdf_url = sessionStorage.getItem("URL_PDF");
+
+        if (mensaje && pdf_url) {
+            imprimirPDF(pdf_url)
+            sessionStorage.removeItem("mensaje_exito");
+            sessionStorage.removeItem("URL_PDF")
+            setTimeout(() => {
+                mostrarAviso(mensaje, "success");
+            }, 100);
+        }
+    }, []);
+
+    const entradasFiltradas = (entradas ?? []).filter((entrada) => {
+        const termino = busqueda
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+
+        const normalizar = (texto: string = "") =>
+            texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+        const coincideBusqueda =
+            normalizar(entrada.nombre_producto).includes(termino) ||
+            normalizar(entrada.unidad).includes(termino) ||
+            normalizar(entrada.fecha_entrada).includes(termino);
+
+        const coincideCategoria =
+            categoriaSeleccionada === "todas" ||
+            entrada.nombre_categoria === categoriaSeleccionada;
+
+        return coincideBusqueda && coincideCategoria;
+    });
 
     return (
         <React.Fragment>
@@ -111,7 +161,98 @@ export const Entradas = () => {
                         </div>
                     </div>
                 </div>
+
+                <div className="overflow-x-auto max-h-[780px]">
+                    <table className="min-w-[600px] w-full text-sm">
+                        <thead className="bg-[#e8e1ef] text-[#502779] sticky top-0 z-10">
+                            <tr>
+                                <th className="px-4 py-3 text-left hidden lg:table-cell">Fecha</th>
+                                <th className="px-4 py-3 text-left">Categoria</th>
+                                <th className="px-4 py-3 text-left">Cantidad</th>
+                                <th className="px-4 py-3 text-left">Concepto</th>
+                                <th className="px-4 py-3 text-left"></th>
+                                <th className="px-4 py-3 text-center"></th>
+                                <th className="px-4 py-3 text-center"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {entradasFiltradas.length !== 0 ? (
+                                entradasFiltradas.map((entrada) => (
+                                    <tr
+                                        key={entrada.id_entrada}
+                                        className={`transition-colors duration-200 ease-in-out ${entrada.pendiente_mas_3dias ? "bg-red-100 hover:bg-red-200" : "hover:bg-gray-200"
+                                            }`}
+                                    >
+                                        <td className="px-4 py-3 hidden lg:table-cell">{entrada.fecha_entrada}</td>
+                                        <td className="px-4 py-3">{entrada.nombre_categoria}</td>
+                                        <td className="px-4 py-3">{entrada.cantidad} ({entrada.unidad})</td>
+                                        <td className="px-4 py-3 whitespace-normal wrap-break-word">{entrada.nombre_producto}</td>
+
+                                        <td className="bg-red-200 p-0 text-center align-middle">
+                                            <span className="flex justify-center items-center w-full h-full px-3 py-3 text-sm font-medium text-red-700 truncate">
+                                                En tránsito
+                                            </span>
+                                        </td>
+
+                                        <td
+                                            className={`cursor-pointer p-4 text-center ${entrada.pendiente_mas_3dias
+                                                ? "bg-red-100 text-red-700 hover:bg-red-200"
+                                                : "bg-green-100 text-green-700 hover:bg-green-200"
+                                                }`}
+                                            onClick={() => {
+                                                setEntrada({
+                                                    id_producto: entrada.id_producto,
+                                                    id_entrada: entrada.id_entrada,
+                                                    nombre_producto: entrada.nombre_producto,
+                                                    cantidad: Number(entrada.cantidad),
+                                                });
+                                                setModalResguardarVisible(true);
+                                            }}
+                                        >
+                                            <div className="flex items-center justify-center h-full w-full">
+                                                <Box className="w-5 h-5" />
+                                            </div>
+                                        </td>
+
+                                        <td
+                                            className={`cursor-pointer p-4 text-center ${entrada.pendiente_mas_3dias
+                                                ? "bg-red-100 text-red-700 hover:bg-red-200"
+                                                : "bg-green-100 text-green-700 hover:bg-green-200"
+                                                }`}
+                                            onClick={() => {
+                                                setEntrada({
+                                                    id_producto: entrada.id_producto,
+                                                    id_entrada: entrada.id_entrada,
+                                                    nombre_producto: entrada.nombre_producto,
+                                                    cantidad: Number(entrada.cantidad),
+                                                });
+                                                setModalEntregaVisible(true);
+                                            }}
+                                        >
+                                            <div className="flex items-center justify-center h-full w-full">
+                                                <HandHelping className="w-5 h-5" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <td colSpan={7} className="text-center p-8 text-gray-400 font-semibold">
+                                    No se encontraron registros. Por favor, ajuste los filtros o intente nuevamente
+                                </td>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
+            <AnimatePresence>
+                {modoAgregarActivo && (
+                    <ModalCategorias
+                        cerrarModal={() => setModoAgregarActivo(false)}
+                        categorias={categorias ?? []}
+                    />
+                )}
+            </AnimatePresence >
 
             <AnimatePresence>
                 {loading && (

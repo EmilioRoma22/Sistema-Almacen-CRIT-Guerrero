@@ -9,6 +9,7 @@ import { Entradas } from './components/entradas/Entradas'
 import LayoutPrivado from './components/LayoutPrivado'
 import { AuthProvider } from './contexts/AuthContext'
 import { Departamentos } from './components/departamentos/Departamentos'
+import AgregarEntrada from './components/entradas/AgregarEntrada'
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
@@ -25,6 +26,7 @@ createRoot(document.getElementById('root')!).render(
 
             <Route element={<RutaProtegida permitidoPara={[1, 2]} />}>
               <Route path="/entradas" element={<Entradas />} />
+              <Route path="/entradas/agregar_entrada/:id_categoria" element={<AgregarEntrada />} />
             </Route>
           </Route>
 

@@ -60,3 +60,40 @@ export interface Categoria {
     id_categoria: number,
     nombre_categoria: string
 }
+
+export interface Entradas {
+    id_entrada: number,
+    id_producto: number,
+    nombre_categoria: string,
+    nombre_producto: string,
+    unidad: string,
+    cantidad: string,
+    completada: boolean,
+    fecha_entrada: string
+    pendiente_mas_3dias: boolean
+}
+
+export type Entrada = {
+    categoria: Categoria
+    productos: Producto[],
+    nombre_donador?: string
+}
+
+export type Resguardo = {
+    categoria: Categoria
+    productos: Producto[]
+    departamento: number
+}
+
+export interface Productos {
+    id_producto: number,
+    nombre_producto: string,
+    unidad: string
+}
+
+export type Producto = {
+    id?: string
+    cantidad: string;
+    unidad: string;
+    nombre: string;
+};

@@ -1,4 +1,3 @@
-// apiAxios.ts
 import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -11,11 +10,9 @@ const apiAxios = axios.create({
 let isRefreshing = false;
 let refreshPromise: Promise<any> | null = null;
 
-// Variables que se van a setear desde AuthContext
 let setUsuarioCallback: ((usuario: any) => void) | null = null;
 let setSesionExpiradaCallback: ((value: boolean) => void) | null = null;
 
-// Función para registrar los setters
 export const registerAuthHandlers = (setUsuario: any, setSesionExpirada: any) => {
     setUsuarioCallback = setUsuario;
     setSesionExpiradaCallback = setSesionExpirada;
